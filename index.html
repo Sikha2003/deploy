@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang='en'>
+
 <head>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>Spring Workspace | v2.0</title>
-    
+    <title>Spring Workspace | v2.0 - Kafka Edition</title>
+
     <style>
         :root {
             --spring-green: #6db33f;
@@ -14,9 +15,14 @@
             --text-main: #e6edf3;
             --text-dim: #8b949e;
             --border: #30363d;
+            --kafka-purple: #9069cd;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -29,14 +35,19 @@
         .progress-line {
             height: 4px;
             width: 100%;
-            background: linear-gradient(90deg, #6db33f, #34302d, #6db33f);
+            background: linear-gradient(90deg, var(--spring-green), var(--kafka-purple), var(--spring-green));
             background-size: 200% 100%;
             animation: move 4s linear infinite;
         }
 
         @keyframes move {
-            0% { background-position: 200% 0; }
-            100% { background-position: 0% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: 0% 0;
+            }
         }
 
         header {
@@ -64,7 +75,7 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 80px 20px;
+            padding: 60px 20px;
         }
 
         .hero-split {
@@ -81,7 +92,9 @@
             margin-bottom: 20px;
         }
 
-        h1 span { color: var(--spring-green); }
+        h1 span {
+            color: var(--spring-green);
+        }
 
         .tagline {
             font-size: 1.2rem;
@@ -96,11 +109,23 @@
             border-radius: 12px;
             padding: 20px;
             font-family: 'Consolas', monospace;
-            font-size: 0.9rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            font-size: 0.85rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
         }
 
-        .code-window span { color: var(--spring-green); }
+        .code-window span {
+            color: var(--spring-green);
+        }
+
+        .code-window .keyword {
+            color: #ff7b72;
+        }
+
+        .code-window .annotation {
+            color: #d2a8ff;
+        }
 
         .btn-spring {
             background-color: var(--spring-green);
@@ -113,12 +138,16 @@
             transition: filter 0.2s;
         }
 
-        .btn-spring:hover { filter: brightness(1.1); }
+        .btn-spring:hover {
+            filter: brightness(1.1);
+        }
 
+        /* Grid Section */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
+            margin-bottom: 80px;
         }
 
         .card {
@@ -140,6 +169,69 @@
             display: block;
         }
 
+        /* Kafka Feature Section */
+        .kafka-section {
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 80px;
+        }
+
+        .stream-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--spring-green);
+            margin-bottom: 25px;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--spring-green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(109, 179, 63, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(109, 179, 63, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(109, 179, 63, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(109, 179, 63, 0);
+            }
+        }
+
+        .kafka-flex {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .kafka-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .kafka-code {
+            flex: 1;
+            min-width: 300px;
+        }
+
         footer {
             text-align: center;
             padding: 60px 20px;
@@ -149,37 +241,52 @@
         }
 
         @media (max-width: 768px) {
-            .hero-split { grid-template-columns: 1fr; text-align: center; }
+            .hero-split {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="progress-line"></div>
 
     <header>
         <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--spring-green)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--spring-green)">
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+            </svg>
             Spring<span>OS</span>
         </div>
-        <nav style="color: var(--text-dim); font-size: 0.9rem;">v2.0.0-RELEASE</nav>
+        <nav style="color: var(--text-dim); font-size: 0.8rem; font-family: monospace;">v2.1.0-KAFKA_ENABLED</nav>
     </header>
 
     <main class="container">
         <section class="hero-split">
             <div>
-                <h1>Build <span>Anything</span> with Spring.</h1>
-                <p class="tagline">From microservices to complex data pipelines, the Spring ecosystem provides the tools to ship production-ready code faster.</p>
-                <a href="#" class="btn-spring">Initialize Project</a>
+                <h1>Modern <span>Event</span> Architectures.</h1>
+                <p class="tagline">Streamline your microservices with Spring Boot and Apache Kafka. Scalable, resilient,
+                    and ready for high-throughput data pipelines.</p>
+                <div style="display: flex; gap: 15px;">
+                    <a href="#" class="btn-spring">View Clusters</a>
+                    <a href="#"
+                        style="color: var(--text-dim); text-decoration: none; align-self: center; font-size: 0.9rem;">Documentation
+                        &rarr;</a>
+                </div>
             </div>
             <div class="code-window">
                 <pre>
-<span>@SpringBootApplication</span>
-public class Application {
-  public static void main(String[] args) {
-    <span>SpringApplication.run</span>(
-      Application.class, args
-    );
+<span class="annotation">@SpringBootApplication</span>
+<span class="keyword">public class</span> StreamApp {
+  <span class="keyword">public static void</span> main(String[] args) {
+    <span>SpringApplication.run</span>(StreamApp.class, args);
   }
 }</pre>
             </div>
@@ -189,24 +296,63 @@ public class Application {
             <div class="card">
                 <span class="card-icon">🍃</span>
                 <h3>Spring Boot</h3>
-                <p>Takes an opinionated view of building production-ready Spring applications with "Just Run" simplicity.</p>
+                <p>Opinionated defaults for building production-ready applications instantly.</p>
             </div>
             <div class="card">
-                <span class="card-icon">☁️</span>
-                <h3>Spring Cloud</h3>
-                <p>Provides tools for developers to quickly build common patterns in distributed systems (config, discovery, routing).</p>
+                <span class="card-icon">⚙️</span>
+                <h3>Spring Kafka</h3>
+                <p>High-level abstractions for Kafka topics, producers, and concurrent message listeners.</p>
             </div>
             <div class="card">
                 <span class="card-icon">🛡️</span>
                 <h3>Spring Security</h3>
-                <p>A powerful and highly customizable authentication and access-control framework for Java applications.</p>
+                <p>Enterprise-grade authentication and authorization for streaming endpoints.</p>
+            </div>
+        </section>
+
+        <section class="kafka-section">
+            <div class="stream-status">
+                <div class="pulse"></div>
+                Live Stream: orders.telemetry.inbound | Partitions: 12 | Status: Healthy
+            </div>
+
+            <div class="kafka-flex">
+                <div class="kafka-content">
+                    <h2 style="font-size: 2rem; margin-bottom: 15px;">Reactive <span>Processing</span></h2>
+                    <p style="color: var(--text-dim); margin-bottom: 20px;">Leverage the power of Spring for Apache
+                        Kafka to handle massive message volumes with ease. Automate your DLT (Dead Letter Topic) logic
+                        and simplify complex serialization.</p>
+                    <ul style="list-style: none; color: var(--text-dim); font-size: 0.95rem;">
+                        <li style="margin-bottom: 8px;">✅ Non-blocking message consumption</li>
+                        <li style="margin-bottom: 8px;">✅ Declarative topic provisioning</li>
+                        <li style="margin-bottom: 8px;">✅ Native support for Avro and JSON</li>
+                    </ul>
+                </div>
+
+                <div class="kafka-code">
+                    <div class="code-window" style="background: #0d1117;">
+                        <pre>
+<span class="annotation">@KafkaListener</span>(topics = "orders")
+<span class="keyword">public void</span> handle(Order order) {
+  <span>// Process event stream</span>
+  log.info("Received: " + order.id());
+  process(order);
+}
+
+<span class="annotation">@SendTo</span>("orders-processed")
+<span class="keyword">public</span> Receipt confirm(Order o) {
+  <span class="keyword">return new</span> Receipt(o.id());
+}</pre>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2024 Developer Workspace. Powered by the Spring Framework Ecosystem.</p>
+        <p>&copy; 2024 Developer Workspace. Distributed Systems Architecture v2.1</p>
     </footer>
 
 </body>
+
 </html>
