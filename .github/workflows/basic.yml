@@ -1,0 +1,11 @@
+name: basic workflow
+
+on: push
+jobs:
+ build:
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: say Hello
+      run: echo " My First GitHub"
+ 
