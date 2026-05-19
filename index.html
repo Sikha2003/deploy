@@ -4,20 +4,20 @@
 <head>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>Terraform Cloud | Infrastructure as Code</title>
+    <title>GitHub Actions | CI/CD Pipeline Automation</title>
     <style>
         :root {
-            --tf-purple: #844fba;
-            --tf-magenta: #c8619b;
-            --tf-glow: rgba(132, 79, 186, 0.3);
-            --bg: #0e0e12;
-            --card-bg: #17171e;
-            --border: #2a2a35;
-            --text-main: #9ea0a3;
-            --text-bright: #ffffff;
-            --add: #28a745;
-            --mod: #cc8b00;
-            --del: #d73a49;
+            --gh-blue: #2f81f7;
+            --gh-green: #238636;
+            --gh-green-glow: rgba(35, 134, 54, 0.15);
+            --gh-danger: #f85149;
+            --gh-warning: #d29922;
+            --bg: #0d1117;
+            --card-bg: #161b22;
+            --border: #30363d;
+            --text-main: #8b949e;
+            --text-bright: #c9d1d9;
+            --terminal-bg: #010409;
         }
 
         * {
@@ -27,7 +27,7 @@
         }
 
         body {
-            font-family: 'Inter', 'JetBrains Mono', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
             background-color: var(--bg);
             color: var(--text-main);
             line-height: 1.5;
@@ -35,7 +35,7 @@
 
         /* Top Navigation */
         .nav {
-            background: #000;
+            background: #161b22;
             padding: 15px 40px;
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -43,117 +43,244 @@
             align-items: center;
         }
 
-        .workspace-tag {
-            background: var(--tf-glow);
-            color: var(--tf-purple);
+        .repo-path {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-bright);
+        }
+
+        .repo-path a {
+            color: var(--gh-blue);
+            text-decoration: none;
+        }
+
+        .status-badge {
+            background: var(--gh-green-glow);
+            color: #56d364;
             padding: 4px 12px;
             border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border: 1px solid var(--tf-purple);
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(86, 211, 100, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #56d364;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(86, 211, 100, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(86, 211, 100, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(86, 211, 100, 0);
+            }
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 30px 20px;
         }
 
-        /* Hero Plan Summary */
-        .plan-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .plan-card {
+        /* Workflow Commit Header */
+        .commit-header {
             background: var(--card-bg);
-            border-left: 4px solid var(--border);
-            padding: 20px;
-            text-align: center;
-        }
-
-        .plan-card.add { border-color: var(--add); }
-        .plan-card.mod { border-color: var(--mod); }
-        .plan-card.del { border-color: var(--del); }
-
-        .count { font-size: 2rem; color: var(--text-bright); font-weight: bold; display: block; }
-        .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Main Workspace Grid */
-        .workspace-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-        }
-
-        /* Resource Tree */
-        .resource-panel {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 4px;
-        }
-
-        .resource-item {
-            font-size: 0.8rem;
-            padding: 8px 0;
-            border-bottom: 1px solid #222;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .res-icon { color: var(--tf-magenta); font-weight: bold; }
-
-        /* Code & Output */
-        .terminal-window {
-            background: #050505;
             border: 1px solid var(--border);
             border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .terminal-header {
-            background: #1c1c24;
-            padding: 10px 20px;
-            font-size: 0.75rem;
+            padding: 20px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+
+        .commit-title {
+            font-size: 1.1rem;
+            color: var(--text-bright);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .commit-meta {
+            font-size: 0.8rem;
+            display: flex;
+            gap: 15px;
+        }
+
+        .commit-id {
+            font-family: monospace;
+            background: #21262d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--gh-blue);
+        }
+
+        /* Main Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+        }
+
+        /* Sidebar Workflow Steps Graph */
+        .pipeline-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .panel-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
             color: var(--text-bright);
         }
 
-        .code-area {
-            padding: 25px;
-            font-size: 0.85rem;
-            color: #d1d5da;
-            overflow-x: auto;
-        }
-
-        .k { color: #c8619b; } /* keyword */
-        .v { color: #79c0ff; } /* value */
-        .s { color: #a5d6ff; } /* string */
-
-        /* Buttons */
-        .btn-apply {
-            background: var(--tf-purple);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-weight: bold;
+        .job-node {
+            background: #21262d;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            position: relative;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px var(--tf-glow);
+            transition: 0.2s;
         }
 
-        .btn-apply:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.2);
+        .job-node:hover {
+            border-color: var(--gh-blue);
+        }
+
+        .job-node.active {
+            border-left: 4px solid var(--gh-blue);
+            background: #1f2937;
+        }
+
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-bright);
+        }
+
+        .job-duration {
+            font-size: 0.7rem;
+            color: var(--text-main);
+            font-weight: normal;
+        }
+
+        /* Live Terminal Logs */
+        .terminal-window {
+            background: var(--terminal-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .terminal-header {
+            background: #161b22;
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-bright);
+        }
+
+        .log-area {
+            padding: 20px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #d1d5da;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .log-line {
+            display: flex;
+            margin-bottom: 4px;
+            line-height: 1.6;
+        }
+
+        .log-ts {
+            color: #58a6ff;
+            min-width: 90px;
+            user-select: none;
+            opacity: 0.6;
+        }
+
+        .log-text {
+            word-break: break-all;
+        }
+
+        .log-text.cmd {
+            color: #f2cc60;
+            font-weight: bold;
+        }
+
+        .log-text.success {
+            color: #56d364;
+        }
+
+        .log-text.info {
+            color: #8b949e;
+        }
+
+        /* Trigger Actions Button */
+        .btn-dispatch {
+            background: var(--gh-green);
+            color: white;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-dispatch:hover {
+            background-color: #2ea043;
         }
 
         @media (max-width: 900px) {
-            .workspace-grid { grid-template-columns: 1fr; }
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .commit-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
 </head>
@@ -161,92 +288,189 @@
 <body>
 
     <nav class="nav">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <svg width="24" height="24" viewBox="0 0 32 32" fill="var(--tf-purple)">
-                <path d="M1.107 8.5L14.931 0.5V16L1.107 24V8.5Z"/>
-                <path d="M17.069 0.5L30.893 8.5V24L17.069 16V0.5Z"/>
-                <path d="M17.069 18.5L30.893 26.5V31.5L17.069 23.5V18.5Z"/>
+        <div class="repo-path">
+            <svg height="20" viewBox="0 0 16 16" width="20" fill="var(--text-bright)">
+                <path
+                    d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82A7.413 7.413 0 0 0 8 3c-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.16.73.72.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                </path>
             </svg>
-            <span style="font-weight: bold; color: var(--text-bright);">TERRAFORM_CORE</span>
+            <span><strong><a href="#">octocat</a></strong> / <a href="#">production-deploy-pipeline</a></span>
         </div>
-        <div class="workspace-tag">WS: AWS-PRODUCTION-VPC</div>
+        <div class="status-badge">
+            <div class="pulse-dot"></div>
+            <span>Run #492 - In Progress</span>
+        </div>
     </nav>
 
     <main class="container">
-        
-        <section class="plan-summary">
-            <div class="plan-card add">
-                <span class="count">14</span>
-                <span class="label">To Add</span>
+
+        <section class="commit-header">
+            <div>
+                <div class="commit-title">🚀 CI/CD: Release v2.4.0-rc3 to Production Cluster</div>
+                <div class="commit-meta">
+                    <span>Event: <strong style="color: var(--text-bright);">push</strong></span>
+                    <span>Branch: <strong
+                            style="color: var(--text-bright); font-family: monospace;">main</strong></span>
+                    <span>Commit: <span class="commit-id">aef8412</span></span>
+                    <span>Actor: <strong style="color: var(--text-bright);">@devops-lead</strong></span>
+                </div>
             </div>
-            <div class="plan-card mod">
-                <span class="count">3</span>
-                <span class="label">To Change</span>
-            </div>
-            <div class="plan-card del">
-                <span class="count">0</span>
-                <span class="label">To Destroy</span>
-            </div>
+            <button class="btn-dispatch">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                        d="M8 3.5a4.5 4.5 0 1 0 4.5 4.5 1 1 0 0 1 2 0 6.5 6.5 0 1 1-6.5-6.5zm5.11 1.11a1 1 0 1 1-1.414-1.414 1 1 0 0 1 1.414 1.414z" />
+                </svg>
+                Rerun Failed Jobs
+            </button>
         </section>
 
-        <div class="workspace-grid">
-            <aside class="resource-panel">
-                <h3 style="font-size: 0.8rem; color: var(--text-bright); margin-bottom: 20px;">STATE_RESOURCES</h3>
-                <div class="resource-item"><span class="res-icon">⬡</span> aws_vpc.main</div>
-                <div class="resource-item"><span class="res-icon">⬡</span> aws_subnet.public_a</div>
-                <div class="resource-item"><span class="res-icon">⬡</span> aws_subnet.public_b</div>
-                <div class="resource-item"><span class="res-icon">⬡</span> aws_internet_gateway.igw</div>
-                <div class="resource-item"><span class="res-icon">⬡</span> aws_route_table.rt</div>
-                <div class="resource-item"><span class="res-icon">⬡</span> aws_security_group.allow_tls</div>
-                <div class="resource-item" style="opacity: 0.4;"><span class="res-icon">⬡</span> module.rds_cluster</div>
+        <div class="main-grid">
+
+            <aside class="pipeline-panel">
+                <div class="panel-title">Workflow Jobs</div>
+
+                <div class="job-node" style="border-left: 4px solid var(--gh-green);">
+                    <div class="job-meta">
+                        <span>🛡️ Lint & Security Scan</span>
+                        <span class="job-duration" style="color: #56d364;">✓ 42s</span>
+                    </div>
+                </div>
+
+                <div class="job-node" style="border-left: 4px solid var(--gh-green);">
+                    <div class="job-meta">
+                        <span>🧪 Unit & Integration Tests</span>
+                        <span class="job-duration" style="color: #56d364;">✓ 1m 15s</span>
+                    </div>
+                </div>
+
+                <div class="job-node active">
+                    <div class="job-meta">
+                        <span>📦 Build Docker Image</span>
+                        <span class="job-duration" style="color: var(--gh-warning);">Running...</span>
+                    </div>
+                </div>
+
+                <div class="job-node" style="opacity: 0.5;">
+                    <div class="job-meta">
+                        <span>☸️ K8s Blue-Green Deploy</span>
+                        <span class="job-duration">Queued</span>
+                    </div>
+                </div>
+
+                <div class="job-node" style="opacity: 0.5;">
+                    <div class="job-meta">
+                        <span>🔍 Post-Deployment Smoke Test</span>
+                        <span class="job-duration">Waiting</span>
+                    </div>
+                </div>
             </aside>
 
             <section>
                 <div class="terminal-window">
                     <div class="terminal-header">
-                        <span>main.tf</span>
-                        <span>v1.5.7</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span style="color: var(--gh-blue);">●</span>
+                            <strong>Job: build_and_push_registry</strong>
+                        </div>
+                        <span style="font-family: monospace; color: var(--text-main);">Runner:
+                            ubuntu-latest-xlarge</span>
                     </div>
-                    <div class="code-area">
-                        <pre>
-<span class="k">resource</span> <span class="s">"aws_instance"</span> <span class="s">"web_server"</span> {
-  <span class="k">ami</span>           = <span class="v">"ami-0c55b159cbfafe1f0"</span>
-  <span class="k">instance_type</span> = <span class="v">"t3.medium"</span>
 
-  <span class="k">tags</span> = {
-    <span class="k">Name</span> = <span class="s">"Terraform_Managed_Node"</span>
-    <span class="k">Env</span>  = <span class="s">"Production"</span>
-  }
-}
-
-<span class="k">output</span> <span class="s">"instance_ip"</span> {
-  <span class="k">value</span> = <span class="v">aws_instance.web_server.public_ip</span>
-}</pre>
+                    <div class="log-area">
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:02]</span>
+                            <span class="log-text info">✓ Successfully setup runner environment and credentials.</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:05]</span>
+                            <span class="log-text cmd">$ Actions/checkout@v4</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:07]</span>
+                            <span class="log-text info">Syncing repository data into local workspace workspace...
+                                Done.</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:10]</span>
+                            <span class="log-text cmd">$ docker build -t gcr.io/prod-cluster/api-service:v2.4.0-rc3
+                                .</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:11]</span>
+                            <span class="log-text">Sending build context to Docker daemon 42.15MB</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:12]</span>
+                            <span class="log-text">Step 1/8 : FROM node:20-alpine</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:15]</span>
+                            <span class="log-text"> ---> 8c6a2d98dc0f (Cached Layer)</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:16]</span>
+                            <span class="log-text">Step 2/8 : WORKDIR /usr/src/app</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:19]</span>
+                            <span class="log-text">Step 3/8 : COPY package*.json ./</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:24]</span>
+                            <span class="log-text">Step 4/8 : RUN npm ci --omit=dev</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:38]</span>
+                            <span class="log-text info">added 342 packages in 14s</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:40]</span>
+                            <span class="log-text">Step 5/8 : COPY . .</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:43]</span>
+                            <span class="log-text">Step 6/8 : EXPOSE 8080</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:45]</span>
+                            <span class="log-text">Step 7/8 : CMD ["node", "dist/server.js"]</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:46]</span>
+                            <span class="log-text success"> ---> Successfully built e9210fa8c21b</span>
+                        </div>
+                        <div class="log-line" style="background: rgba(210, 153, 34, 0.08); padding: 2px 0;">
+                            <span class="log-ts">[11:14:48]</span>
+                            <span class="log-text cmd">$ docker push gcr.io/prod-cluster/api-service:v2.4.0-rc3</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:49]</span>
+                            <span class="log-text" style="color: var(--gh-warning);">The push refers to repository
+                                [gcr.io/prod-cluster/api-service]</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-ts">[11:14:50]</span>
+                            <span class="log-text">e9210fa8c21b: Pushing [==================> ] 12.4MB/31.2MB</span>
+                        </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="font-size: 0.75rem; color: var(--mod);">
-                        ⚠️ 3 outputs will be updated in state
+                <div
+                    style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 15px; border: 1px solid var(--border); border-radius: 6px;">
+                    <div style="font-size: 0.8rem; display: flex; gap: 20px;">
+                        <span>Runner CPU: <strong style="color: var(--text-bright);">12%</strong></span>
+                        <span>Memory Load: <strong style="color: var(--text-bright);">2.4 GB / 16 GB</strong></span>
                     </div>
-                    <button class="btn-apply">CONFIRM & APPLY</button>
-                </div>
-
-                <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <div style="font-size: 0.7rem; color: #555; margin-bottom: 10px;">TERRAFORM_PLAN_OUTPUT</div>
-                    <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem;">
-                        <div style="color: var(--add);">+ aws_instance.web_server will be created</div>
-                        <div style="color: var(--text-main); margin-left: 20px;">id: (known after apply)</div>
-                        <div style="color: var(--text-main); margin-left: 20px;">arn: (known after apply)</div>
-                        <div style="color: var(--mod); margin-top: 10px;">~ aws_vpc.main will be updated in-place</div>
+                    <div style="font-size: 0.75rem; color: var(--text-main); font-family: monospace;">
+                        IMAGE_TAG: <span style="color: #79c0ff;">v2.4.0-rc3</span>
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <footer style="text-align: center; padding: 40px; color: #222; font-size: 0.6rem;">
-        TERRAFORM_STATE_v4 // SHA256: 8f2e9... // LOCK_ID: 9912-XA
+    <footer style="text-align: center; padding: 40px; color: #30363d; font-size: 0.65rem; font-family: monospace;">
+        GITHUB_ACTIONS_CORE_v2.0 // RUN_ID: gh-99410-az2 // SECURE_RUNNER_CONTAINER
     </footer>
 
 </body>
